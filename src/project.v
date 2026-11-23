@@ -1,27 +1,70 @@
-/*
- * Copyright (c) 2024 Your Name
- * SPDX-License-Identifier: Apache-2.0
- */
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
-`default_nettype none
+entity DECODIFICADOR_8BITS is
+    Port (
+        BIN : in STD_LOGIC_VECTOR(7 downto 0);
 
-module tt_um_example (
-    input  wire [7:0] ui_in,    // Dedicated inputs
-    output wire [7:0] uo_out,   // Dedicated outputs
-    input  wire [7:0] uio_in,   // IOs: Input path
-    output wire [7:0] uio_out,  // IOs: Output path
-    output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  wire       ena,      // always 1 when the design is powered, so you can ignore it
-    input  wire       clk,      // clock
-    input  wire       rst_n     // reset_n - low to reset
-);
+        HEX0 : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX1 : out STD_LOGIC_VECTOR(6 downto 0);
+        HEX2 : out STD_LOGIC_VECTOR(6 downto 0)
+    );
+end DECODIFICADOR_8BITS;
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+architecture Funcional of DECODIFICADOR_8BITS is
 
-  // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
+    signal numero : INTEGER range 0 to 255;
+    signal unidades : INTEGER range 0 to 9;
+    signal decenas : INTEGER range 0 to 9;
+    signal centenas : INTEGER range 0 to 2;
 
-endmodule
+begin
+
+    numero <= to_integer(unsigned(BIN));
+
+    unidades <= numero mod 10;
+    decenas <= (numero / 10) mod 10;
+    centenas <= numero / 100;
+
+    process(unidades, decenas, centenas)
+    begin
+
+        case unidades is
+            when 0 => HEX0 <= "1000000";
+            when 1 => HEX0 <= "1111001";
+            when 2 => HEX0 <= "0100100";
+            when 3 => HEX0 <= "0110000";
+            when 4 => HEX0 <= "0011001";
+            when 5 => HEX0 <= "0010010";
+            when 6 => HEX0 <= "0000010";
+            when 7 => HEX0 <= "1111000";
+            when 8 => HEX0 <= "0000000";
+            when 9 => HEX0 <= "0010000";
+            when others => HEX0 <= "1111111";
+        end case;
+
+        case decenas is
+            when 0 => HEX1 <= "1000000";
+            when 1 => HEX1 <= "1111001";
+            when 2 => HEX1 <= "0100100";
+            when 3 => HEX1 <= "0110000";
+            when 4 => HEX1 <= "0011001";
+            when 5 => HEX1 <= "0010010";
+            when 6 => HEX1 <= "0000010";
+            when 7 => HEX1 <= "1111000";
+            when 8 => HEX1 <= "0000000";
+            when 9 => HEX1 <= "0010000";
+            when others => HEX1 <= "1111111";
+        end case;
+
+        case centenas is
+            when 0 => HEX2 <= "1000000";
+            when 1 => HEX2 <= "1111001";
+            when 2 => HEX2 <= "0100100";
+            when others => HEX2 <= "1111111";
+        end case;
+
+    end process;
+
+end Funcional;
